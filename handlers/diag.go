@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"assignment1/constants"
-	"assignment1/uptime"
+	"assignment-1/constants"
+	"assignment-1/uptime"
 	"encoding/json"
 	"fmt"
 	"net/http"
