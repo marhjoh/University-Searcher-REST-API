@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	"assignment-1/constants"
+	"assignment-1/cmd/handlers/constants"
+	"assignment-1/structs"
 	"assignment-1/uptime"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 )
 
 func HandlerDiag(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodGet {
 		http.Error(w, "Other methods than GET are not supported.", http.StatusMethodNotAllowed)
 		return
@@ -21,24 +23,23 @@ func HandlerDiag(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 
 	err := encoder.Encode(diagnose)
-
 	if err != nil {
 		http.Error(w, "There was an error during encoding", http.StatusInternalServerError)
 		return
 	}
+
 }
 
-func getDiagnose() Diagnose {
+func getDiagnose() structs.Diagnose {
 
 	url := constants.UNIVERSITIESAPI_URL
 	universityApiRequest, err := http.NewRequest(http.MethodHead, url, nil)
 	if err != nil {
 		fmt.Errorf("There was an error in creating university API request: %e", err.Error())
 	}
-
 	universityApiRequest.Header.Add("content-type", "application/json")
 
-	url = constants.COUNTRIESAPI_URL
+	url = constants.COUNTRIESAPI_URL + "all"
 	countriesApiRequest, err := http.NewRequest(http.MethodHead, url, nil)
 	if err != nil {
 		fmt.Errorf("There was an error in creating country API request: %e", err.Error())
@@ -46,7 +47,6 @@ func getDiagnose() Diagnose {
 
 	client := http.Client{}
 	res, err := client.Do(universityApiRequest)
-
 	if err != nil {
 		fmt.Errorf("There was an error in university API response: %e", err.Error())
 	}
@@ -60,7 +60,7 @@ func getDiagnose() Diagnose {
 
 	countriesApiStatus := res.StatusCode
 
-	return Diagnose{
+	return structs.Diagnose{
 		UniversitiesApi: fmt.Sprintf("%d", universityApiStatus),
 		CountriesApi:    fmt.Sprintf("%d", countriesApiStatus),
 		Version:         "v1",
