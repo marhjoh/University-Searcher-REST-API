@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// The main function handles ports assignment, sets up handler endpoints and starts the HTTP-server
 func main() {
 	// Handle port assignment (either based on environment variable, or local override)
 	port := os.Getenv("PORT")
