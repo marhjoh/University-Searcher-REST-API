@@ -1,6 +1,6 @@
 # Unisearcher - Assignment-1
-This project is a submission for the first assignment in PROG-2005: Cloud Technologies. 
-Unisearcher is a web application written in Golang that utilizes REST API to provide information to 
+This project is a submission for the first assignment in PROG-2005: Cloud Technologies.
+Unisearcher is a web application written in Golang that utilizes REST API to provide information to
 the client about universities that may be good candidates for applications based on their name.
 Additionally, it also provides convenient information related to the country the university is situated in.
 
@@ -24,15 +24,15 @@ Request: uniinfo/{:partial_or_complete_university_name}{?{fields={:field1,field2
 
 #### Parameters
 * `{:partial_or_complete_university_name}` partial or complete university name of the
-universities to be searched for.
+  universities to be searched for.
 
 * `{?fields={:field1,field2,...}}` optional parameter. Specifies which fields to
-be included in the result. Applicable fields are: name, country, isocode, webpages,
-languages and map. The standard if there is no specified fields are all the fields.
+  be included in the result. Applicable fields are: name, country, isocode, webpages,
+  languages and map. The standard if there is no specified fields are all the fields.
 
 * `{?limit={:number}}` optional parameter. Limits the number of universities displayed.
-If the amount of results are less than the limit this won't have an impact. The standard 
-if there is no specified value is all results.
+  If the amount of results are less than the limit this won't have an impact. The standard
+  if there is no specified value is all results.
 
 #### Response:
 Content type: `application/json`
@@ -93,18 +93,18 @@ Request: neighbourunis/{:country_name}/{:partial_or_complete_university_name}{?{
 #### Parameters
 
 * `{:country_name}` the country name in english that is the basis country of
-the search of universities with the identical name in neighbouring countries.
+  the search of universities with the identical name in neighbouring countries.
 
 * `{:partial_or_complete_university_name}` partial or complete university name,
-for which universities with identical names in neighboring countries are sought.
+  for which universities with identical names in neighboring countries are sought.
 
 * `{?fields={:field1,field2,...}}` optional parameter. Specifies which fields to
   be included in the result. Applicable fields are: name, country, isocode, webpages,
   languages and map. The standard if there is no specified fields are all the fields.
 
-* `{?limit={:number}}` optional parameter. Limits the number of universities displayed. 
-If the amount of results are less than the limit this won't have an impact. The standard 
-if there is no specified value is all results.
+* `{?limit={:number}}` optional parameter. Limits the number of universities displayed.
+  If the amount of results are less than the limit this won't have an impact. The standard
+  if there is no specified value is all results.
 
 #### Response:
 Content type: `application/json`
@@ -231,4 +231,42 @@ Response:
         "name": "Guangzhou College of South China University of Technology"
     }
 ]
+```
+
+### Diag
+The diagnostics endpoint provides a simple health check. In other words the interface
+indicates whether the individual services the service are dependent on are available or not.
+The health check reports this information, as well as information about the uptime of the service.
+
+```
+Method: GET
+Path: /unisearcher/v1/diag/
+```
+
+#### Response
+Content type: `application/json`
+
+Status codes
+* 200: Everything is OK.
+* 404: Not found.
+* 500: Internal server error.
+
+Diag content
+* universitiesapi: the http status code for the "universities API".
+* countriesapi: the http status code for "restcountries API".
+* version: set to "v1".
+* uptime: the time since the last service restart (in seconds).
+
+#### Example request and response
+
+Request: `/diag`
+
+Response:
+```
+{
+    "universitiesapi": "200",
+    "countriesapi": "200",
+    "version": "v1",
+    "uptime": 5
+}
 ```
