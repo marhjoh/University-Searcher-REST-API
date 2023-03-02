@@ -80,6 +80,21 @@ Response:
 ]
 ```
 
+Request: `uniinfo/stavanger?fields=languages&limit=1`
+
+Response:
+```
+[
+    {
+        "languages": {
+            "nno": "Norwegian Nynorsk",
+            "nob": "Norwegian Bokmål",
+            "smi": "Sami"
+        }
+    }
+]
+```
+
 ### Neighbourunis
 The Neighbourunis endpoint provides an overview of universities in neighboring countries with the
 same name component in their institution name.
