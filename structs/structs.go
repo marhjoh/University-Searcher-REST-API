@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 type Diagnose struct {
 	UniversitiesApi string `json:"universitiesapi"`
 	CountriesApi    string `json:"countriesapi"`
@@ -28,6 +30,9 @@ type Country struct {
 	Languages map[string]string      `json:"languages"`
 	Maps      map[string]string      `json:"maps"`
 	Borders   []string               `json:"borders"`
+	CCA3      string                 `json:"cca3"`
+	CCA2      string                 `json:"cca2"`
+	Cache     time.Time
 }
 
 func CombineUniversityAndCountry(u University, c Country, fields ...string) UniversityAndCountry {

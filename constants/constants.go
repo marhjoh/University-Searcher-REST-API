@@ -14,5 +14,10 @@ const (
 	UNIVERSITIESAPI_URL = "http://universities.hipolabs.com/"
 	COUNTRIESAPI_URL    = "https://restcountries.com/v3/"
 
+	// Limit constants
 	LIMIT_DEFAULT = 0
+	LIMIT_HOURS   = 600
+
+	// The standard fields to request from the country-API
+	COUNTRIESAPI_STANDARD_FIELDS = "name,languages,maps,borders,cca2,cca3"
 )
