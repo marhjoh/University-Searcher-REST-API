@@ -1,4 +1,4 @@
-package constants
+package predefined
 
 // This file defines constants used throughout the program.
 const (

@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"assignment-1/cmd/handlers/constants"
-	"assignment-1/structs"
+	"assignment-1/predefined"
 	"assignment-1/uptime"
 	"encoding/json"
 	"fmt"
@@ -11,10 +10,13 @@ import (
 
 /*
 HandlerDiag is a handler for the /diag endpoint.
-Param w: The http.ResponseWriter
-Param r: The http.Request pointer.
+Param w: the http.ResponseWriter that the server uses to write the HTTP response
+Param r: the http.Request pointer that contains the incoming request data.
+Returns:
 */
 func HandlerDiag(w http.ResponseWriter, r *http.Request) {
+	// Set the content-type header to indicate that the response contains JSON data
+	w.Header().Add("content-type", "application/json")
 
 	// Return an error if the HTTP method is not GET.
 	if r.Method != http.MethodGet {
@@ -24,9 +26,6 @@ func HandlerDiag(w http.ResponseWriter, r *http.Request) {
 
 	// Get diagnose information.
 	diagnose := getDiagnose()
-
-	// Set response content type to JSON.
-	w.Header().Add("content-type", "application/json")
 
 	// Encode the diagnose information as JSON and send it in the response.
 	encoder := json.NewEncoder(w)
@@ -38,12 +37,13 @@ func HandlerDiag(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-getDiagnose returns a Diagnose struct containing information about the uptime and status of the universities and countries APIs.
+getDiagnose returns a diagnose struct containing information about the uptime and status of the universities and countries APIs.
+Returns: a diagnose struct containing information about the uptime and status of the universities and countries APIs.
 */
-func getDiagnose() structs.Diagnose {
+func getDiagnose() predefined.Diagnose {
 
 	// Check the status of the universities API.
-	url := constants.UNIVERSITIESAPI_URL
+	url := predefined.UNIVERSITIESAPI_URL
 	universityApiRequest, err := http.NewRequest(http.MethodHead, url, nil)
 	if err != nil {
 		fmt.Errorf("There was an error in creating university API request: %e", err.Error())
@@ -58,7 +58,7 @@ func getDiagnose() structs.Diagnose {
 	universityApiStatus := res.StatusCode
 
 	// Check the status of the countries API.
-	url = constants.COUNTRIESAPI_URL + "all"
+	url = predefined.COUNTRIESAPI_URL + "all"
 	countriesApiRequest, err := http.NewRequest(http.MethodHead, url, nil)
 	if err != nil {
 		fmt.Errorf("There was an error in creating country API request: %e", err.Error())
@@ -69,8 +69,8 @@ func getDiagnose() structs.Diagnose {
 	}
 	countriesApiStatus := res.StatusCode
 
-	// Return a Diagnose struct containing information about the uptime and status of the universities and countries APIs.
-	return structs.Diagnose{
+	// Return a diagnose struct containing information about the uptime and status of the universities and countries APIs.
+	return predefined.Diagnose{
 		UniversitiesApi: fmt.Sprintf("%d", universityApiStatus),
 		CountriesApi:    fmt.Sprintf("%d", countriesApiStatus),
 		Version:         "v1",

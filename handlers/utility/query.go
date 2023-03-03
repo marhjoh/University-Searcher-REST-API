@@ -2,7 +2,7 @@ package utility
 
 // File containing helper_functions to retrieve queries from URLs.
 import (
-	"assignment-1/constants"
+	"assignment-1/predefined"
 	"errors"
 	"net/url"
 	"strconv"
@@ -20,12 +20,12 @@ func GetLimit(URL *url.URL) (int, error) {
 		if l, err := strconv.Atoi(URL.Query()["limit"][0]); err != nil || l < 0 {
 			errorReturned = errors.New("the value that was set is not a positive integer. " +
 				"0 will be used as the limit")
-			setLimit = constants.LIMIT_DEFAULT
+			setLimit = predefined.LIMIT_DEFAULT
 		} else {
 			setLimit = l
 		}
 	} else {
-		setLimit = constants.LIMIT_DEFAULT
+		setLimit = predefined.LIMIT_DEFAULT
 	}
 	return setLimit, errorReturned
 }
