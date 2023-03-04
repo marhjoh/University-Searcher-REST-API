@@ -34,14 +34,14 @@ Param cachedCountryName: The name of the country to retrieve from the cache.
 Returns: The cached country if it exists and is not too old, or an empty struct and an error otherwise.
 */
 func GetCountryFromCache(cachedCountryName string) (predefined.Country, error) {
-	if c, exists := cachedCountry[strings.ToTitle(cachedCountryName)]; exists {
-		if time.Since(c.Cache).Hours() > predefined.LIMIT_HOURS {
+	if country, exists := cachedCountry[strings.ToTitle(cachedCountryName)]; exists {
+		if time.Since(country.Cache).Hours() > predefined.LIMIT_HOURS {
 			// Delete the cached country if it has surpassed the limit
-			delete(cachedCountry, c.Name["common"].(string))
+			delete(cachedCountry, country.Name["common"].(string))
 			return predefined.Country{}, errors.New(fmt.Sprintf("%s was cached, but it has gone over %v hours since it was cached.",
 				cachedCountryName, predefined.LIMIT_HOURS))
 		}
-		return c, nil
+		return country, nil
 	} else {
 		return predefined.Country{}, errors.New(fmt.Sprintf("%s is not cached.", cachedCountryName))
 	}
@@ -53,23 +53,23 @@ Param alphaCode: the Alpha code (CCA2 or CCA3) of the cached country to be retri
 Returns: The cached country, or an empty struct and an error.
 */
 func GetCountryByAlphaCodeFromCache(alphaCode string) (predefined.Country, error) {
-	for _, c := range cachedCountry {
-		if strings.ToUpper(c.CCA3) == strings.ToUpper(alphaCode) {
-			if time.Since(c.Cache).Hours() > predefined.LIMIT_HOURS {
+	for _, country := range cachedCountry {
+		if strings.ToUpper(country.CCA3) == strings.ToUpper(alphaCode) {
+			if time.Since(country.Cache).Hours() > predefined.LIMIT_HOURS {
 				// Delete the cached country if it has surpassed the limit
-				delete(cachedCountry, c.Name["common"].(string))
+				delete(cachedCountry, country.Name["common"].(string))
 				return predefined.Country{}, errors.New(fmt.Sprintf("%s was cached, but it has gone over %v hours since it was cached.",
 					cachedCountry, predefined.LIMIT_HOURS))
 			}
-			return c, nil
-		} else if strings.ToUpper(c.CCA2) == strings.ToUpper(alphaCode) {
-			if time.Since(c.Cache).Hours() > predefined.LIMIT_HOURS {
+			return country, nil
+		} else if strings.ToUpper(country.CCA2) == strings.ToUpper(alphaCode) {
+			if time.Since(country.Cache).Hours() > predefined.LIMIT_HOURS {
 				// Delete the cached country if it has surpassed the limit
-				delete(cachedCountry, c.Name["common"].(string))
+				delete(cachedCountry, country.Name["common"].(string))
 				return predefined.Country{}, errors.New(fmt.Sprintf("%s was cached, but it has gone over %v hours since it was cached.",
 					cachedCountry, predefined.LIMIT_HOURS))
 			}
-			return c, nil
+			return country, nil
 		}
 	}
 	return predefined.Country{}, errors.New(fmt.Sprintf("%s is not cached.", alphaCode))
