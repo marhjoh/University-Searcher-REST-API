@@ -277,6 +277,20 @@ Diag content
 Request: `/diag`
 
 Response:
+
+```
+{
+   "universitiesapi": "<http status code for universities API>",
+   "countriesapi": "<http status code for restcountries API>",
+   "version": "v1",
+   "uptime": <time elapsed in seconds from the last service restart>
+}
+```
+
+Note: `<some value>` indicates placeholders for values to be populated by the service. 
+An example response is provided underneath. 
+
+Example response:
 ```
 {
     "universitiesapi": "200",
