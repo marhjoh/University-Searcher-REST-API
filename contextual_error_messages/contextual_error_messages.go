@@ -19,7 +19,7 @@ GetInvalidLimitError returns an error
 Returns: an error indicating that the limit set is invalid.
 */
 func GetInvalidLimitError() error {
-	return errors.New("The limit that was set is not a valid positive integer. The limit has been set as 0.")
+	return errors.New("The limit that was set is not a valid positive integer.")
 }
 
 /*
