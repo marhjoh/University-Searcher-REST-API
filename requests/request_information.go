@@ -7,6 +7,9 @@ import (
 	"strings"
 )
 
+// Reuse the HTTP client to prevent creating a new one for each request
+var client = httpclient.Client
+
 /*
 CreateAndDoRequest creates an HTTP request with the given method and URL.
 Param method: HTTP method to use in the request.
@@ -25,7 +28,7 @@ func CreateAndDoRequest(method string, url string) (*http.Response, error) {
 	}
 
 	// Send the request using the HTTP client
-	res, err := httpclient.Client.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

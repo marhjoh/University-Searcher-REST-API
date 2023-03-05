@@ -10,6 +10,9 @@ import (
 	"net/http"
 )
 
+// Reuse the HTTP client to prevent creating a new one for each request
+var client = httpclient.Client
+
 /*
 HandlerDiag is a handler for the /diag endpoint.
 Param w: the http.ResponseWriter that the server uses to write the HTTP response
@@ -55,7 +58,7 @@ func getDiagnose() (predefined.Diagnose, error) {
 	// Set the content-type header to indicate that the response contains JSON data
 	universityApiRequest.Header.Add("content-type", "application/json")
 
-	res, err := httpclient.Client.Do(universityApiRequest)
+	res, err := client.Do(universityApiRequest)
 	if err != nil {
 		return predefined.Diagnose{}, err
 	}
@@ -66,7 +69,7 @@ func getDiagnose() (predefined.Diagnose, error) {
 	url = predefined.COUNTRIESAPI_URL + "all"
 	countriesApiRequest, _ := http.NewRequest(http.MethodHead, url, nil)
 
-	res, err = httpclient.Client.Do(countriesApiRequest)
+	res, err = client.Do(countriesApiRequest)
 	if err != nil {
 		return predefined.Diagnose{}, err
 	}

@@ -53,7 +53,7 @@ func HandlerNeighbourUniversities(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the country to find neighbouring countries to
 	country, err := request_country.GetCountryInformationByName(countryQuery)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNoContent)
+		http.Error(w, contextual_error_messages.GetCountriesNotFoundError().Error(), http.StatusNoContent)
 		return
 	}
 
