@@ -1,7 +1,9 @@
 package predefined
 
+// This file defines structs and a function to work with data related to universities and countries.
 import "time"
 
+// Diagnose represents diagnostic information about the API server.
 type Diagnose struct {
 	UniversitiesApi string `json:"universitiesapi"`
 	CountriesApi    string `json:"countriesapi"`
@@ -9,15 +11,7 @@ type Diagnose struct {
 	Uptime          int    `json:"uptime"`
 }
 
-type UniversityAndCountry struct {
-	Name      string            `json:"name,omitempty"`
-	Country   string            `json:"country,omitempty"`
-	Isocode   string            `json:"isocode,omitempty"`
-	WebPages  []string          `json:"webpages,omitempty"`
-	Languages map[string]string `json:"languages,omitempty"`
-	Map       string            `json:"map,omitempty"`
-}
-
+// University represents data about a university.
 type University struct {
 	Name         string   `json:"name"`
 	Country      string   `json:"country"`
@@ -25,6 +19,7 @@ type University struct {
 	WebPages     []string `json:"web_pages"`
 }
 
+// Country represents data about a country.
 type Country struct {
 	Name      map[string]interface{} `json:"name"`
 	Languages map[string]string      `json:"languages"`
@@ -35,6 +30,20 @@ type Country struct {
 	Cache     time.Time
 }
 
+// UniversityAndCountry struct that contains data about a university and its country.
+type UniversityAndCountry struct {
+	Name      string            `json:"name,omitempty"`
+	Country   string            `json:"country,omitempty"`
+	Isocode   string            `json:"isocode,omitempty"`
+	WebPages  []string          `json:"webpages,omitempty"`
+	Languages map[string]string `json:"languages,omitempty"`
+	Map       string            `json:"map,omitempty"`
+}
+
+/*
+CombineUniversityAndCountry combines data about a university and a country.
+Returns: a UniversityAndCountry object
+*/
 func CombineUniversityAndCountry(u University, c Country, fields ...string) UniversityAndCountry {
 	var universityInformation UniversityAndCountry
 	if len(fields) > 0 {
