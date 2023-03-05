@@ -310,10 +310,26 @@ It can also be downloaded and run on local machine.
 
 ## Design
 
+Throughout the implementation of this application, the focus points on the design has been loose coupling, high cohesion
+and modularity as close to Golang convention as possible. This has been done through constants, different files for handlers and
+generic functions.
+
+### Project structure
+
+The project structure was created with the goal of responsibility driven design,
+and to minimize code duplication overall.
+
+The endpoint-handlers got one file each, and are all located in the "handlers" package.
+Since both uniinfo and neighbourunis need to request both countries and universities,
+all code related to requesting and getting a response is moved to an own request package.
+
+In order to limit API-requests, when countries are requested all borders from the country is retrieved and for each border request the country.
+By doing this the API workload can get large. The API-server side's workload is reduced. In this way the REST-principles are met.
+
 Extra features
 
-* Cache: When searching for a country/ies, the country/ies will be cached for a set period of time. 
-This result in less frequent requests for the API and shorter response time.
+* Cache: When searching for a country/ies, the country/ies will be cached for a set period of time. This is done to ensure an updated cache.
+  This result in less frequent requests for the API and shorter response time.
 * Query: The user is able to specify both the limit of results and which fields to be included in a response.
 
 ## Further improvements
