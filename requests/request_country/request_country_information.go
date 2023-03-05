@@ -19,7 +19,7 @@ import (
 GetCountryInformationByName Retrieves the country specified by the name. Tries to get the country from cache, and retrieves it
 from the API if it's not present.
 Param name: Name of the country to retrieve.
-Returns: The country to retrieve, if found, and an error, if rasied.
+Returns: The country to retrieve, and an error (if rasied).
 */
 func GetCountryInformationByName(countryName string) (predefined.Country, error) {
 	//Tries to get country from cache
@@ -52,16 +52,9 @@ func GetCountryInformationByName(countryName string) (predefined.Country, error)
 
 /*
 GetCountryInformationByAlphaCode retrieves country information based on the provided AlphaCode, which can be either CCA2 or CCA3.
-Tries to get the country from cache, and retrieves it from the API if it's not present.
-Param AlphaCode: AlphaCode of the country to retrieve, either as CCA2 or CCA3.
-Returns: The country to retrieve, if found, and an error, if rasied.
-*/
-
-/*
-GetCountryInformationByAlphaCode retrieves country information based on the provided AlphaCode, which can be either CCA2 or CCA3.
 It first tries to retrieve the country information from the cache. If the information is not present in the cache, it is retrieved from the API.
 Param alpha: AlphaCode of the country to retrieve, either as CCA2 or CCA3.
-Returns: The country information for the specified AlphaCode, if found, and an error otherwise.
+Returns: The country information for the specified AlphaCode, or an error.
 */
 func GetCountryInformationByAlphaCode(alphaCode string) (predefined.Country, error) {
 	// Tries to get country from cache
@@ -110,8 +103,6 @@ func RequestCountryInformation(url string) ([]predefined.Country, error) {
 /*
 DecodeCountryInformation decodes a JSON response into a list of countries.
 Checks whether the JSON response is an array or an object, and decodes it accordingly.
-If the response is an object, it appends the decoded country to a list before returning it.
-If the response is an empty object, it returns an empty list and an error indicating that no countries were found.
 Param res: the HTTP response to decode.
 Returns: A list of decoded countries, or an error and an empty list.
 */
