@@ -1,6 +1,5 @@
 package request_country
 
-// File containing helper_functions to request country information from the Country-API
 import (
 	"assignment-1/cache"
 	"assignment-1/contextual_error_messages"
@@ -23,32 +22,32 @@ Param name: Name of the country to retrieve.
 Returns: The country to retrieve, and an error (if rasied).
 */
 func GetCountryInformationByName(countryName string) (predefined.Country, error) {
-	//Tries to get country from cache
-	if c, err := cache.GetCountryFromCache(countryName); err == nil {
-		return c, nil
-	} else {
-		// Country not in cache, retrieves from the API instead
-		url := fmt.Sprintf("%sname/%s?fields=%s", predefined.COUNTRIESAPI_URL, countryName, predefined.COUNTRIESAPI_STANDARD_FIELDS)
-		var countries []predefined.Country
-		if countries, err = RequestCountryInformation(url); err != nil {
-			return predefined.Country{}, err
-		}
-
-		// Goes through the list of retrieved country to find the correct one.
-		for _, c := range countries {
-			if strings.ToLower(c.Name["common"].(string)) == strings.ToLower(countryName) ||
-				strings.ToLower(c.Name["official"].(string)) == strings.ToLower(countryName) {
-				// Adds the newly retrieved country to the cache
-				if err = cache.AddCountryToCache(c); err != nil {
-					log.Println(err)
-				}
-				return c, nil
-			}
-		}
-
-		return predefined.Country{}, errors.New(fmt.Sprintf("%s not found in result", countryName))
+	// Tries to get country from cache
+	country, err := cache.GetCountryFromCache(countryName)
+	if err == nil {
+		return country, nil
 	}
 
+	// Country not in cache, retrieves from the API instead
+	url := fmt.Sprintf("%sname/%s?fields=%s", predefined.COUNTRIESAPI_URL, countryName, predefined.COUNTRIESAPI_STANDARD_FIELDS)
+	countries, err := RequestCountryInformation(url)
+	if err != nil {
+		return predefined.Country{}, err
+	}
+
+	// Goes through the list of retrieved country to find the correct one.
+	for _, country := range countries {
+		if strings.EqualFold(country.Name["common"].(string), countryName) ||
+			strings.EqualFold(country.Name["official"].(string), countryName) {
+			// Adds the newly retrieved country to the cache
+			if err := cache.AddCountryToCache(country); err != nil {
+				log.Println(err)
+			}
+			return country, nil
+		}
+	}
+
+	return predefined.Country{}, errors.New(fmt.Sprintf("%s not found in result", countryName))
 }
 
 /*
@@ -59,28 +58,29 @@ Returns: The country information for the specified AlphaCode, or an error.
 */
 func GetCountryInformationByAlphaCode(alphaCode string) (predefined.Country, error) {
 	// Tries to get country from cache
-	if country, err := cache.GetCountryByAlphaCodeFromCache(alphaCode); err == nil {
+	country, err := cache.GetCountryByAlphaCodeFromCache(alphaCode)
+	if err == nil {
 		return country, nil
-	} else {
-		// Country not found in cache, retrieves from the API instead
-		url := fmt.Sprintf("%salpha/%s?fields=%s", predefined.COUNTRIESAPI_URL, alphaCode, predefined.COUNTRIESAPI_STANDARD_FIELDS)
-		var countries []predefined.Country
-		if countries, err = RequestCountryInformation(url); err != nil {
-			return predefined.Country{}, err
-		}
-
-		for _, country := range countries {
-			if country.CCA3 == alphaCode || country.CCA2 == alphaCode {
-				// Adds the newly retrieved country to the cache
-				if err = cache.AddCountryToCache(country); err != nil {
-					log.Println(err)
-				}
-				return country, nil
-			}
-		}
-
-		return predefined.Country{}, errors.New(fmt.Sprintf("%s not found in result", alphaCode))
 	}
+
+	// Country not found in cache, retrieves from the API instead
+	url := fmt.Sprintf("%salpha/%s?fields=%s", predefined.COUNTRIESAPI_URL, alphaCode, predefined.COUNTRIESAPI_STANDARD_FIELDS)
+	countries, err := RequestCountryInformation(url)
+	if err != nil {
+		return predefined.Country{}, err
+	}
+
+	for _, country := range countries {
+		if country.CCA3 == alphaCode || country.CCA2 == alphaCode {
+			// Adds the newly retrieved country to the cache
+			if err := cache.AddCountryToCache(country); err != nil {
+				log.Println(err)
+			}
+			return country, nil
+		}
+	}
+
+	return predefined.Country{}, errors.New(fmt.Sprintf("%s not found in result", alphaCode))
 }
 
 /*
@@ -94,11 +94,11 @@ func RequestCountryInformation(url string) ([]predefined.Country, error) {
 	if err != nil {
 		return nil, err
 	}
-	var c []predefined.Country
-	if c, err = DecodeCountryInformation(res); err != nil {
+	var country []predefined.Country
+	if country, err = DecodeCountryInformation(res); err != nil {
 		return nil, err
 	}
-	return c, nil
+	return country, nil
 }
 
 /*
