@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"assignment-1/contextual_error_messages"
+	"assignment-1/httpclient"
 	"assignment-1/predefined"
 	"assignment-1/uptime"
 	"encoding/json"
@@ -12,7 +14,7 @@ import (
 HandlerDiag is a handler for the /diag endpoint.
 Param w: the http.ResponseWriter that the server uses to write the HTTP response
 Param r: the http.Request pointer that contains the incoming request data.
-Returns:
+Returns: nothing
 */
 func HandlerDiag(w http.ResponseWriter, r *http.Request) {
 	// Set the content-type header to indicate that the response contains JSON data
@@ -31,7 +33,7 @@ func HandlerDiag(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err := encoder.Encode(diagnose)
 	if err != nil {
-		http.Error(w, "There was an error during encoding", http.StatusInternalServerError)
+		http.Error(w, contextual_error_messages.GetEncodingError().Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -44,29 +46,21 @@ func getDiagnose() predefined.Diagnose {
 
 	// Check the status of the universities API.
 	url := predefined.UNIVERSITIESAPI_URL
-	universityApiRequest, err := http.NewRequest(http.MethodHead, url, nil)
-	if err != nil {
-		fmt.Errorf("There was an error in creating university API request: %e", err.Error())
-	}
+	universityApiRequest, _ := http.NewRequest(http.MethodHead, url, nil)
+
+	// Set the content-type header to indicate that the response contains JSON data
 	universityApiRequest.Header.Add("content-type", "application/json")
 
-	client := http.Client{}
-	res, err := client.Do(universityApiRequest)
-	if err != nil {
-		fmt.Errorf("There was an error in university API response: %e", err.Error())
-	}
+	res, _ := httpclient.Client.Do(universityApiRequest)
+
 	universityApiStatus := res.StatusCode
 
 	// Check the status of the countries API.
 	url = predefined.COUNTRIESAPI_URL + "all"
-	countriesApiRequest, err := http.NewRequest(http.MethodHead, url, nil)
-	if err != nil {
-		fmt.Errorf("There was an error in creating country API request: %e", err.Error())
-	}
-	res, err = client.Do(countriesApiRequest)
-	if err != nil {
-		fmt.Errorf("There was an error in countries API response: %e", err.Error())
-	}
+	countriesApiRequest, _ := http.NewRequest(http.MethodHead, url, nil)
+
+	res, _ = httpclient.Client.Do(countriesApiRequest)
+
 	countriesApiStatus := res.StatusCode
 
 	// Return a diagnose struct containing information about the uptime and status of the universities and countries APIs.
