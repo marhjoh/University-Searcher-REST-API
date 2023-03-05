@@ -22,16 +22,20 @@ func HandlerDiag(w http.ResponseWriter, r *http.Request) {
 
 	// Return an error if the HTTP method is not GET.
 	if r.Method != http.MethodGet {
-		http.Error(w, "Other methods than GET are not supported.", http.StatusMethodNotAllowed)
+		http.Error(w, contextual_error_messages.GetInvalidMethodError().Error(), http.StatusMethodNotAllowed)
 		return
 	}
 
 	// Get diagnose information.
-	diagnose := getDiagnose()
+	diagnose, err := getDiagnose()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Encode the diagnose information as JSON and send it in the response.
 	encoder := json.NewEncoder(w)
-	err := encoder.Encode(diagnose)
+	err = encoder.Encode(diagnose)
 	if err != nil {
 		http.Error(w, contextual_error_messages.GetEncodingError().Error(), http.StatusInternalServerError)
 		return
@@ -40,9 +44,9 @@ func HandlerDiag(w http.ResponseWriter, r *http.Request) {
 
 /*
 getDiagnose returns a diagnose struct containing information about the uptime and status of the universities and countries APIs.
-Returns: a diagnose struct containing information about the uptime and status of the universities and countries APIs.
+Returns: a diagnose struct containing information about the uptime and status of the universities and countries APIs, or an error if the request fails.
 */
-func getDiagnose() predefined.Diagnose {
+func getDiagnose() (predefined.Diagnose, error) {
 
 	// Check the status of the universities API.
 	url := predefined.UNIVERSITIESAPI_URL
@@ -51,7 +55,10 @@ func getDiagnose() predefined.Diagnose {
 	// Set the content-type header to indicate that the response contains JSON data
 	universityApiRequest.Header.Add("content-type", "application/json")
 
-	res, _ := httpclient.Client.Do(universityApiRequest)
+	res, err := httpclient.Client.Do(universityApiRequest)
+	if err != nil {
+		return predefined.Diagnose{}, err
+	}
 
 	universityApiStatus := res.StatusCode
 
@@ -59,7 +66,10 @@ func getDiagnose() predefined.Diagnose {
 	url = predefined.COUNTRIESAPI_URL + "all"
 	countriesApiRequest, _ := http.NewRequest(http.MethodHead, url, nil)
 
-	res, _ = httpclient.Client.Do(countriesApiRequest)
+	res, err = httpclient.Client.Do(countriesApiRequest)
+	if err != nil {
+		return predefined.Diagnose{}, err
+	}
 
 	countriesApiStatus := res.StatusCode
 
@@ -69,5 +79,5 @@ func getDiagnose() predefined.Diagnose {
 		CountriesApi:    fmt.Sprintf("%d", countriesApiStatus),
 		Version:         "v1",
 		Uptime:          uptime.GetUptime(),
-	}
+	}, nil
 }
