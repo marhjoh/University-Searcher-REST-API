@@ -3,6 +3,7 @@ package request_country
 // File containing helper_functions to request country information from the Country-API
 import (
 	"assignment-1/cache"
+	"assignment-1/contextual_error_messages"
 	"assignment-1/predefined"
 	"assignment-1/requests"
 	"bytes"
@@ -131,7 +132,7 @@ func DecodeCountryInformation(res *http.Response) ([]predefined.Country, error) 
 		}
 		// If the country does not have a name, return an error
 		if country.Name == nil {
-			return countries, errors.New("There were no countries found")
+			return countries, contextual_error_messages.GetCountriesNotFoundError()
 		}
 		// Append the decoded country data to the slice of countries
 		countries = append(countries, country)

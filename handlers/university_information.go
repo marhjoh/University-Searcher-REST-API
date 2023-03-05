@@ -24,7 +24,7 @@ func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the HTTP method is GET
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method is not supported. Currently only GET are supported.", http.StatusMethodNotAllowed)
+		http.Error(w, contextual_error_messages.GetInvalidMethodError().Error(), http.StatusMethodNotAllowed)
 	}
 
 	// Retrieve the university information based on the query parameters

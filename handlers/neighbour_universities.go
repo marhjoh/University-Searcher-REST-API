@@ -24,7 +24,7 @@ func HandlerNeighbourUniversities(w http.ResponseWriter, r *http.Request) {
 
 	// Respond with error if method is anything else than GET.
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method is not supported. Currently only GET are supported.", http.StatusMethodNotAllowed)
+		http.Error(w, contextual_error_messages.GetInvalidMethodError().Error(), http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -36,10 +36,7 @@ func HandlerNeighbourUniversities(w http.ResponseWriter, r *http.Request) {
 	uniQuery := pathList[len(pathList)-1]
 
 	if len(pathList) != 6 {
-		http.Error(w, "The request that was made is not a valid request. The correct format is: "+
-			"neighbourunis/{:country_name}/{:partial_or_complete_university_name}{?{fields={:field1,field2,...}}&{limit={:number}}} "+
-			"You have written something wrong. Please check the README for further description"+
-			"https://git.gvk.idi.ntnu.no/course/prog2005/prog2005-2023-workspace/marhjoh/assignment-1/-/blob/master/README.md", http.StatusBadRequest)
+		http.Error(w, contextual_error_messages.GetInvalidNeighbourUniversityRequestError().Error(), http.StatusBadRequest)
 		return
 	}
 
