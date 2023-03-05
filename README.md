@@ -299,3 +299,32 @@ Example response:
     "uptime": 5
 }
 ```
+
+## Deployment
+The API is hosted on Render.
+
+URL to the deployed Render service:
+https://assignment-1-0tmo.onrender.com 
+
+It can also be downloaded and run on local machine.
+
+## Design
+
+Extra features
+
+* Cache: When searching for a country/ies, the country/ies will be cached for a set period of time. 
+This result in less frequent requests for the API and shorter response time.
+* Query: The user is able to specify both the limit of results and which fields to be included in a response.
+
+## Further improvements
+
+These are further improvements I've not have had time to resolve.
+* Use a middleware to set the content-type header for all response. 
+* Implement Gorilla Mux to define URL routes and extract variables from them instead of doing it manually.
+* When retrieving the neighbouring countries from a given country, a request is made for each bordering country. 
+Instead, make a single request to retrieve all the countries that border the given country.
+* Improve error handling: some errors happening in neighbourunis and uniinfo are not displaying. 
+However, only showing "1", and a correct status code.
+* Name differences - the two APIs has different writings for at least vietnam, decrease the lack of results. 
+The list of countries this affects is not complete and the API would not give any warnings for this. 
+Look for a solution to resolve this
