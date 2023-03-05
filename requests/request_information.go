@@ -2,6 +2,7 @@ package requests
 
 // File containing a helper_function to create and do requests
 import (
+	"assignment-1/httpclient"
 	"net/http"
 	"strings"
 )
@@ -24,8 +25,7 @@ func CreateAndDoRequest(method string, url string) (*http.Response, error) {
 	}
 
 	// Send the request using the HTTP client
-	client := &http.Client{}
-	res, err := client.Do(req)
+	res, err := httpclient.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
