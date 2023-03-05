@@ -1,6 +1,5 @@
 package utility
 
-// File containing helper_functions to retrieve queries from URLs.
 import (
 	"assignment-1/contextual_error_messages"
 	"assignment-1/predefined"
@@ -15,19 +14,17 @@ Parameter URL: the URL containing the limit to be retrieved from
 Returns: the value of limit (int), and an error if the limit is not applicable.
 */
 func GetLimit(URL *url.URL) (int, error) {
-	var errorReturned error
-	var setLimit int
-	if URL.Query()["limit"] != nil {
-		if l, err := strconv.Atoi(URL.Query()["limit"][0]); err != nil || l < 0 {
-			errorReturned = contextual_error_messages.GetInvalidLimitError()
-			setLimit = predefined.LIMIT_DEFAULT
-		} else {
-			setLimit = l
-		}
-	} else {
-		setLimit = predefined.LIMIT_DEFAULT
+	limit := URL.Query().Get("limit")
+	if limit == "" {
+		return predefined.LIMIT_DEFAULT, nil
 	}
-	return setLimit, errorReturned
+
+	setLimit, err := strconv.Atoi(limit)
+	if err != nil || setLimit < 0 {
+		return predefined.LIMIT_DEFAULT, contextual_error_messages.GetInvalidLimitError()
+	}
+
+	return setLimit, nil
 }
 
 /*
@@ -36,11 +33,8 @@ Parameter URL: the URL containing the fields to retrieve information from
 Returns: A slice of strings containing the specified fields, or an empty slice.
 */
 func GetFields(URL *url.URL) []string {
-	var fields []string
-	if URL.Query().Get("fields") != "" {
-		fields = strings.Split(URL.Query().Get("fields"), ",")
-	} else {
-		fields = nil
+	if fields := URL.Query().Get("fields"); fields != "" {
+		return strings.Split(fields, ",")
 	}
-	return fields
+	return nil
 }
