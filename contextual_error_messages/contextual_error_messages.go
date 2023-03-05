@@ -4,22 +4,22 @@ import (
 	"errors"
 )
 
-func GetErrorDuringEncodingError() error {
+func GetEncodingError() error {
 	return errors.New("There were an error during encoding.")
 }
 
-func GetNotValidLimitError() error {
-	return errors.New("The limit that was set is not a valid positive integer. Limit set as 0.")
+func GetInvalidLimitError() error {
+	return errors.New("The limit that was set is not a valid positive integer. The limit has been set as 0.")
 }
 
-func GetNoLimitGivenError() error {
-	return errors.New("There were no limit given.")
+func GetLimitNotSuppliedError() error {
+	return errors.New("There were no limit parameter supplied. The limit has been set as 0.")
 }
 
-func GetNoCountriesFoundError() error {
+func GetCountriesNotFoundError() error {
 	return errors.New("There were no countries found.")
 }
 
-func GetNoUniversitiesFoundError() error {
+func GetUniversitiesNotFoundError() error {
 	return errors.New("There were no universities found.")
 }

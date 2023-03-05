@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"assignment-1/contextual_error_messages"
 	"assignment-1/handlers/utility"
 	"assignment-1/predefined"
 	"assignment-1/requests/request_country"
@@ -31,7 +32,7 @@ func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 
 	// Return an HTTP status code indicating that no content was found if no universities are found
 	if len(universities) == 0 {
-		http.Error(w, "No universities were found", http.StatusNoContent)
+		http.Error(w, contextual_error_messages.GetUniversitiesNotFoundError().Error(), http.StatusNoContent)
 		return
 	}
 
@@ -42,7 +43,7 @@ func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 	limit, err := utility.GetLimit(r.URL)
 	if err != nil {
 		// Add not valid limit error to response
-		http.Error(w, "The limit that was set is not a valid positive integer. Limit set as 0", http.StatusBadRequest)
+		http.Error(w, contextual_error_messages.GetInvalidLimitError().Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -54,7 +55,7 @@ func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err = encoder.Encode(combinedUniversityInformation)
 	if err != nil {
-		http.Error(w, "There were an error during encoding", http.StatusInternalServerError)
+		http.Error(w, contextual_error_messages.GetEncodingError().Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"assignment-1/contextual_error_messages"
 	"assignment-1/handlers/utility"
 	"assignment-1/predefined"
 	"assignment-1/requests/request_country"
@@ -48,7 +49,7 @@ func HandlerNeighbourUniversities(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the limit from the query
 	limit, err := utility.GetLimit(r.URL)
 	if err != nil {
-		http.Error(w, "The limit that was set is not a valid positive integer. Limit set as 0", http.StatusBadRequest)
+		http.Error(w, contextual_error_messages.GetInvalidLimitError().Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -96,7 +97,7 @@ func HandlerNeighbourUniversities(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(universityInformation) == 0 {
-		http.Error(w, "There were no universities found", http.StatusNoContent)
+		http.Error(w, contextual_error_messages.GetUniversitiesNotFoundError().Error(), http.StatusNoContent)
 		return
 	}
 	encoder := json.NewEncoder(w)
@@ -104,7 +105,7 @@ func HandlerNeighbourUniversities(w http.ResponseWriter, r *http.Request) {
 	encoder.SetIndent("", "\t")
 	err = encoder.Encode(universityInformation)
 	if err != nil {
-		http.Error(w, "There were an error during encoding", http.StatusInternalServerError)
+		http.Error(w, contextual_error_messages.GetEncodingError().Error(), http.StatusInternalServerError)
 		return
 	}
 }
