@@ -7,7 +7,7 @@ import (
 	"assignment-1/requests/request_country"
 	"assignment-1/requests/request_university"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"path"
 )
@@ -16,19 +16,31 @@ import (
 HandlerUniversityInformation handles incoming HTTP requests for University information
 Param w: the http.ResponseWriter that the server uses to write the HTTP response
 Param r: the http.Request pointer that contains the incoming request data.
-Returns:
+Returns: nothing
 */
 func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 	// Set the content-type header to indicate that the response contains JSON data
-	w.Header().Add("content-type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 
-	// Check if the HTTP method is GET
+	// Ensure that only GET requests are allowed
 	if r.Method != http.MethodGet {
 		http.Error(w, contextual_error_messages.GetInvalidMethodError().Error(), http.StatusMethodNotAllowed)
+		return
 	}
 
-	// Retrieve the university information based on the query parameters
-	universities := GetUniversityInformation(r)
+	// Get the search string from the URL path
+	search := path.Base(r.URL.Path)
+	if search == "" {
+		http.Error(w, "no search string provided", http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve universities that match the search string
+	universities, err := request_university.RequestUniversityInformationByName(search)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Return an HTTP status code indicating that no content was found if no universities are found
 	if len(universities) == 0 {
@@ -42,7 +54,6 @@ func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the limit from the query
 	limit, err := utility.GetLimit(r.URL)
 	if err != nil {
-		// Add not valid limit error to response
 		http.Error(w, contextual_error_messages.GetInvalidLimitError().Error(), http.StatusBadRequest)
 		return
 	}
@@ -51,34 +62,37 @@ func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 	combinedUniversityInformation := GetCombinedUniversityInformation(universities, fields, limit)
 
 	// Encode the combined university information
-	encoder := json.NewEncoder(w)
-	encoder.SetIndent("", "\t")
-	err = encoder.Encode(combinedUniversityInformation)
-	if err != nil {
+	if err := json.NewEncoder(w).Encode(combinedUniversityInformation); err != nil {
 		http.Error(w, contextual_error_messages.GetEncodingError().Error(), http.StatusInternalServerError)
 		return
 	}
-
 }
 
 /*
 GetUniversityInformation retrieves information about universities by their name.
 Param r: the http.Request pointer that contains the incoming request data.
 Returns: An array of found university objects that match the search string, or nil.
-*/
-func GetUniversityInformation(r *http.Request) []predefined.University {
-	// Retrieve the search-string
+func GetUniversityInformation(r *http.Request) ([]predefined.University, error) {
+	// Retrieve the search-string from the URL path
 	search := path.Base(r.URL.Path)
 	if search == "" {
-		return nil
+		return nil, errors.New("no search string provided")
 	}
-	// Retrieve the resulting universities
-	universities, _ := request_university.RequestUniversityInformationByName(search)
-	if universities == nil {
-		return nil
+
+	// Request university information by name
+	universities, err := request_university.RequestUniversityInformationByName(search)
+	if err != nil {
+		return nil, err
 	}
-	return universities
+
+	// Check if any universities were found
+	if len(universities) == 0 {
+		return nil, errors.New(contextual_error_messages.GetUniversitiesNotFoundError().Error())
+	}
+
+	return universities, nil
 }
+*/
 
 /*
 GetCombinedUniversityInformation combines a list of information about universities with their corresponding country.
@@ -88,21 +102,17 @@ Param limit: An integer representing the maximum number of results to be returne
 Returns: A list of combined universities and countries
 */
 func GetCombinedUniversityInformation(universities []predefined.University, fields []string, limit int) []predefined.UniversityAndCountry {
-	var universityInformationList []predefined.UniversityAndCountry
-	// Request information about the country of the university
+	universityInformationList := make([]predefined.UniversityAndCountry, 0, len(universities))
 	for _, university := range universities {
 		country, err := request_country.GetCountryInformationByAlphaCode(university.AlphaTwoCode)
 		if err != nil {
-			// Print the error message if it occurs
-			fmt.Println(err)
+			log.Printf("failed to get country information for university %v: %v", university.Name, err)
+			continue
 		}
-		// Combine the university and country information
 		universityInformation := predefined.CombineUniversityAndCountry(university, country, fields...)
 		if limit == 0 || len(universityInformationList) < limit {
-			// Add the combined university and country information to the list if the limit has not been reached
 			universityInformationList = append(universityInformationList, universityInformation)
 		} else {
-			// Exit the loop if the limit has been reached
 			break
 		}
 	}
