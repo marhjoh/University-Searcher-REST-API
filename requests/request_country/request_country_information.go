@@ -1,11 +1,11 @@
 package request_country
 
+// File containing helper_functions to request university information from the Country-API or the cache.
 import (
 	"assignment-1/cache"
 	"assignment-1/contextual_error_messages"
 	"assignment-1/predefined"
 	"assignment-1/requests"
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -22,24 +22,24 @@ Param name: Name of the country to retrieve.
 Returns: The country to retrieve, and an error (if rasied).
 */
 func GetCountryInformationByName(countryName string) (predefined.Country, error) {
-	// Tries to get country from cache
+	// Get country from cache
 	country, err := cache.GetCountryFromCache(countryName)
 	if err == nil {
 		return country, nil
 	}
 
-	// Country not in cache, retrieves from the API instead
+	// Retrieve from the API
 	url := fmt.Sprintf("%sname/%s?fields=%s", predefined.COUNTRIESAPI_URL, countryName, predefined.COUNTRIESAPI_STANDARD_FIELDS)
 	countries, err := RequestCountryInformation(url)
 	if err != nil {
 		return predefined.Country{}, err
 	}
 
-	// Goes through the list of retrieved country to find the correct one.
+	// Find the match.
 	for _, country := range countries {
 		if strings.EqualFold(country.Name["common"].(string), countryName) ||
 			strings.EqualFold(country.Name["official"].(string), countryName) {
-			// Adds the newly retrieved country to the cache
+			// Add to cache
 			if err := cache.AddCountryToCache(country); err != nil {
 				log.Println(err)
 			}
@@ -57,13 +57,13 @@ Param alpha: AlphaCode of the country to retrieve, either as CCA2 or CCA3.
 Returns: The country information for the specified AlphaCode, or an error.
 */
 func GetCountryInformationByAlphaCode(alphaCode string) (predefined.Country, error) {
-	// Tries to get country from cache
+	// Get country from cache
 	country, err := cache.GetCountryByAlphaCodeFromCache(alphaCode)
 	if err == nil {
 		return country, nil
 	}
 
-	// Country not found in cache, retrieves from the API instead
+	// Retrieve from the API
 	url := fmt.Sprintf("%salpha/%s?fields=%s", predefined.COUNTRIESAPI_URL, alphaCode, predefined.COUNTRIESAPI_STANDARD_FIELDS)
 	countries, err := RequestCountryInformation(url)
 	if err != nil {
@@ -72,7 +72,7 @@ func GetCountryInformationByAlphaCode(alphaCode string) (predefined.Country, err
 
 	for _, country := range countries {
 		if country.CCA3 == alphaCode || country.CCA2 == alphaCode {
-			// Adds the newly retrieved country to the cache
+			// Add to cache
 			if err := cache.AddCountryToCache(country); err != nil {
 				log.Println(err)
 			}
@@ -108,34 +108,40 @@ Param res: the HTTP response to decode.
 Returns: A list of decoded countries, or an error and an empty list.
 */
 func DecodeCountryInformation(res *http.Response) ([]predefined.Country, error) {
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
 
-	// Read the response body into a byte array
-	data, _ := io.ReadAll(res.Body)
-	// Remove any white space from the byte array
-	trimmedData := bytes.TrimLeft(data, " \t\r\n")
-	// Determine if the trimmed byte array represents a JSON array or object
-	isArray := len(trimmedData) > 0 && trimmedData[0] == '['
+		}
+	}(res.Body)
 
-	// Create an empty slice to hold the decoded country data
 	var countries []predefined.Country
-	// If the response body represents a JSON array, decode the array into a slice of countries
-	if isArray {
+	decoder := json.NewDecoder(res.Body)
+
+	// Use json.RawMessage to store the JSON data
+	var data json.RawMessage
+	if err := decoder.Decode(&data); err != nil {
+		return nil, err
+	}
+
+	// Use a switch statement to decode the JSON data based on its type
+	switch data[0] {
+	case '[':
 		if err := json.Unmarshal(data, &countries); err != nil {
 			return nil, err
 		}
-		return countries, nil
-	} else {
-		// If the response body represents a JSON object, decode the object into a country struct
+	case '{':
 		var country predefined.Country
 		if err := json.Unmarshal(data, &country); err != nil {
 			return nil, err
 		}
-		// If the country does not have a name, return an error
 		if country.Name == nil {
 			return countries, contextual_error_messages.GetCountriesNotFoundError()
 		}
-		// Append the decoded country data to the slice of countries
 		countries = append(countries, country)
-		return countries, nil
+	default:
+		return nil, fmt.Errorf("unexpected JSON data")
 	}
+
+	return countries, nil
 }
