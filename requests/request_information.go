@@ -19,18 +19,16 @@ Returns: An HTTP response and error, or nil and an error.
 func CreateAndDoRequest(method string, url string) (*http.Response, error) {
 	// Encode any spaces in the URL to "%20"
 	url = strings.ReplaceAll(url, " ", "%20")
-	// Create the request object
+
+	// Create the request object with the specified method and URL
 	req, err := http.NewRequest(method, url, nil)
-	// Set the request header to indicate that the content type is JSON
-	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}
 
+	// Set the request header to indicate that the content type is JSON
+	req.Header.Set("Content-Type", "application/json")
+
 	// Send the request using the HTTP client
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return client.Do(req)
 }
