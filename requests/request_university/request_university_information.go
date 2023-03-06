@@ -1,13 +1,13 @@
 package request_university
 
-// File containing helper_functions to request university information from the University-API
+// File containing helper_functions to request university information from the University-API or the cache.
 import (
+	"assignment-1/contextual_error_messages"
 	"assignment-1/predefined"
 	"assignment-1/requests"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -30,21 +30,25 @@ RequestUniversityInformation requests universities from the University-API using
 Param url: the URL to use in the request.
 Returns: A list of found universities, or it returns an empty list and an error.
 */
-func RequestUniversityInformation(url string) ([]predefined.University, error) {
+func RequestUniversityInformation(url string) (universities []predefined.University, err error) {
 	res, err := requests.CreateAndDoRequest(http.MethodGet, url)
 	if err != nil {
 		return nil, err
 	}
-	switch {
-	case res.StatusCode == http.StatusNotFound:
-		return []predefined.University{}, errors.New(fmt.Sprintf("%d There were no university found", res.StatusCode))
-	case res.StatusCode != http.StatusOK:
-		return []predefined.University{}, errors.New(fmt.Sprintf("The status code returned from the universityAPI: %d", res.StatusCode))
+
+	if res.StatusCode == http.StatusNotFound {
+		return nil, errors.New(contextual_error_messages.GetUniversitiesNotFoundError().Error())
 	}
-	var universities []predefined.University
-	if universities, err = DecodeUniversityInformation(res); err != nil {
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("Returned status code from University-API: %d", res.StatusCode))
+	}
+
+	universities, err = DecodeUniversityInformation(res)
+	if err != nil {
 		return nil, err
 	}
+
 	return universities, nil
 }
 
@@ -56,10 +60,17 @@ Returns: An array of the decoded university/ies, or both an empty array and an e
 func DecodeUniversityInformation(res *http.Response) ([]predefined.University, error) {
 	// Create a JSON decoder using the response body.
 	decoder := json.NewDecoder(res.Body)
+
+	// Check if the response body is empty.
+	if res.ContentLength == 0 {
+		return nil, errors.New("response body is empty")
+	}
+
+	// Check if the response body contains valid JSON.
 	var universities []predefined.University
 	if err := decoder.Decode(&universities); err != nil {
-		log.Println(err)
 		return nil, err
 	}
+
 	return universities, nil
 }
