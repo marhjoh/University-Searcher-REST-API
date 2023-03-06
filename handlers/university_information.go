@@ -69,32 +69,6 @@ func HandlerUniversityInformation(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-GetUniversityInformation retrieves information about universities by their name.
-Param r: the http.Request pointer that contains the incoming request data.
-Returns: An array of found university objects that match the search string, or nil.
-func GetUniversityInformation(r *http.Request) ([]predefined.University, error) {
-	// Retrieve the search-string from the URL path
-	search := path.Base(r.URL.Path)
-	if search == "" {
-		return nil, errors.New("no search string provided")
-	}
-
-	// Request university information by name
-	universities, err := request_university.RequestUniversityInformationByName(search)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check if any universities were found
-	if len(universities) == 0 {
-		return nil, errors.New(contextual_error_messages.GetUniversitiesNotFoundError().Error())
-	}
-
-	return universities, nil
-}
-*/
-
-/*
 GetCombinedUniversityInformation combines a list of information about universities with their corresponding country.
 Param universities: A list of universities to combine with their corresponding countries.
 Param fields: A list of fields to be included in the combined structs.
